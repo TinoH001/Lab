@@ -1,36 +1,25 @@
-
-texto = "*0001!F21&112!41_LX#74&1PyLKvGr#74&1557&1417!41iWW+uNj#835#46"#Pequeña muestra
+texto = "*00Z01!321&112!41_LX#74&1PyLKvGr#74&1557&1417!41iWW+uNj#835#46"#Pequeña muestra
+permitido = {
+    "*": "01*",
+    "&": "01234567&",
+    "#": "0123456789#",
+    "!": "0123456789ABCDEF!"
+}
 textv2 = []
-copia = False 
-temporal = []
-binary = "01*"
-octal = "01234567&"
-decimal = "0123456789#"
-hexadecimal = "0123456789ABCDEF!"
-bases = "*", "#", "&", "!"
-for letra in texto: #
-    if letra in bases:
-        if temporal != []:
-            textv2.append(temporal)
-        copia = True
+seguro = False #MI SEGURO PARA DEJE DE AÑADIR
+for letra in texto: #LINDOS LOS DICCIONARIOS
+    if letra in permitido:
         prefijo_buscar = letra
-        temporal = []
-    if copia:#MUCHO IF, QUIZAS USE DICCIONARIO Y SOLO 1 IF
-        if prefijo_buscar == "#" and letra not in decimal:
-            copia = False
-        elif prefijo_buscar == "*" and letra not in binary:
-            copia = False
-        elif prefijo_buscar == "&" and letra not in octal:
-            copia = False
-        elif prefijo_buscar == "!" and letra not in hexadecimal:
-            copia = False
-    if copia:
-        temporal += letra
-    else:
-        if temporal != []: 
-            textv2.append(temporal)
-            temporal = []
-textv2.append(temporal)
+        temporal = [] #REINICIA 0
+        actual = letra #CAMBIANDO DE ESTADO Y SIRVE PARA CONFIRMAR DENTRO DEL DICCIONARIO
+        textv2.append(temporal)#AÑADE A MI NUEVA VERSION LIMPIA
+        seguro = True 
+    if seguro: #SOLO AÑADE SI ES TRUE
+        if prefijo_buscar in permitido[prefijo_buscar] and letra in permitido[actual]: #SE CUMPLE QUE MI PREFIJO ESTA EN PREFIJO_BUSCAR Y LA LETRA ACTUAL DENTRO DEL RANGO PERMITIDO ES TRUE
+            temporal.append(letra)#AÑADE A MI LISTA TEMPORAL
+        else:
+            seguro = False #DEJA DE AÑADIR AL PASAR A ESTADO FALSE
+print(textv2)
 
 """""
 def base_x_to_base_decimal(numero):
@@ -53,7 +42,7 @@ def base_x_to_base_decimal(numero):
                 print("Por ahora", f)
     print("Transformado a decimal solo para binario:",f)
 base_x_to_base_decimal(textv2)
-
+"""""
 """""
 textv3 = [] #FULL FILTROX
 #32 y 126 rango permitido para decimales ya transformados
@@ -117,3 +106,5 @@ print("Despues del filtro decimal: ", textv3)
 
 #NO ME GUSTA QUE TENGA 2 VERSIONES EXTRAS DE LA ORIGINAL, QUIZAS LO PUEDA HACER A 1
 #PONDRE AMBOS FOR DENTRO DE UN MISMO DEF Y USARE DICCIONARIO PARA REDUCIR LOS IF Y DEJARLO MÁS LIMPIO
+
+"""""
