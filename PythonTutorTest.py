@@ -1,53 +1,82 @@
-texto = "*0001!F21&112!41_LX#74&1PyLKvGr#74&1557&1417!41iWW+uNj#835#46"#Pequeña muestra
+print("--- DECODIFICADOR DE NOTAS ---")
+entrada = int(input("Ingrese la base en la que desea visualizar los datos (2, 8, 10, 16): "))
+print("[+] Procesando archivo: notas_dm.txt...")
+print("[!] Filtrando ruido místico (valores fuera de rango ASCII)...")#Hare menu creo o puede que lo deje asi
+
+texto = "XYz#84---abc&145*100000!!68mno#111??&171!!!500"#Pequeña muestra
 permitido = {"*": "01*","&": "01234567&","#": "0123456789#","!": "0123456789ABCDEF!"}
-textv2 = []
-seguro = False #MI SEGURO PARA DEJE DE AÑADIR
-for letra in texto: #LINDOS LOS DICCIONARIOS
-    if letra in permitido:
-        prefijo_buscar = letra
-        temporal = [] #REINICIA 0
-        actual = letra #CAMBIANDO DE ESTADO Y SIRVE PARA CONFIRMAR DENTRO DEL DICCIONARIO
-        textv2.append(temporal)#AÑADE A MI NUEVA VERSION LIMPIA
-        seguro = True 
-    if seguro: #SOLO AÑADE SI ES TRUE
-        if prefijo_buscar in permitido[prefijo_buscar] and letra in permitido[actual]: #SE CUMPLE QUE MI PREFIJO ESTA EN PREFIJO_BUSCAR Y LA LETRA ACTUAL DENTRO DEL RANGO PERMITIDO ES TRUE
-            temporal.append(letra)#AÑADE A MI LISTA TEMPORAL
-        else:
-            seguro = False #DEJA DE AÑADIR AL PASAR A ESTADO FALSE
-print(textv2)
-
-
-
-textv3 = [] #FULL FILTROX
-#32 y 126 rango permitido para decimales ya transformados
 hexadecimal_numers = {  "A": 10,"B": 11,"C": 12,"D": 13,"E": 14,"F": 15}
+hexadecimal_numers2 = {10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F"}
 bases = {"*": 2,"&": 8,"#": 10,"!": 16}
-def base_x_to_base_decimal(numero):
-    extra = 0 #EXTRA PARA SABER SI VOY BIEN ENCAMINADO
+textv3 = []
+intermedio = []
+conversiones = []
+def ignorar_basura(numero): #PRIMER FILTRO
+    textv2 = []
+    seguro = None #AL PRINCIPIO NO ES NADA, SIRVE PARA DEJAR DE AÑADIR
+    temporal = []
     for i in numero:
-        f = 0 #LA SUMA DE TOTAL DECIMAL
-        prefijo = i[0] #TOMAMOS PREFIJO A PARTIR DEL INDICE 0 DE LA LISTA
-        count = 1 #FUI INTENTANDO (+-) Y ESTE FUNCIONAXD, USARE PARA RESTAR POR EL LEN DEL LA LISTA DEL PREFIJO COMENZANDO POR 1 Y NO 0
-        for j in i[1:]: #TOMO LOS VALORES DESPUES DEL PREFIJO
-            if prefijo in permitido[prefijo]: 
-                k = 0
+        if i in permitido:
+            prefijo_actual = i  
+            temporal = []
+            actual = i
+            textv2.append(temporal)
+            seguro = True
+        if seguro:
+            if prefijo_actual in permitido[prefijo_actual] and i in permitido[actual]:
+                temporal.append(i)
+            else:
+                seguro = False
+    return textv2
+filtro = ignorar_basura(texto)
+
+def filtro_ASCII(numero): #Pasa cualquiera prefijo a decimal desde 32 y 126
+    for i in numero:
+        decimal_total = 0 #Total del decimal
+        prefijo = i[0]
+        count = 1
+        for j in i[1:]:
+            if prefijo in permitido[prefijo]:
                 count +=1
-                if j in hexadecimal_numers: #USANDO IF PARA IR AL DICCIONARIO Y REEMPLAZAR LA LETRA POR EL NUMERO CORRESPONDIENTE
+                if j in hexadecimal_numers:
                     j = hexadecimal_numers[j]
-                j = int(j) 
-                k = (bases[prefijo]**(int(len(i))-count)* j)
-                f += k
-        if f >= 32 and f <= 126: #FILTRO DE ASCII Y SE AÑADE A LA NUEVA LISTA v3, LAS PERMITIDAS
-            print("Esta dentro del rango permitido:", f,"            lista con prefijo: ",i)
+                j = int(j)
+                decimal_total += ((bases[prefijo]**(int(len(i))-count)* j))
+        if decimal_total >= 32 and decimal_total <= 126:
             textv3.append(i)
-            extra+=1
-            print("total de permitidos",extra)
-        
-base_x_to_base_decimal(textv2)
-print(textv2)
-print("Despues del filtro decimal: ", len(textv3))
-print(textv3)
-#Unire ambos for dentro de un def para el filtrox
+            intermedio.append(int(decimal_total)) #Usara intermedio para pasar de decimal a cualquier base
+    return textv3
+filtro2 = filtro_ASCII(filtro)
+
+
+def decimal_to_BI_OCT_HEX(numero,base): #Paso de mi lista decimal de arriba a cualquier base ingresada 
+    for i in numero: #Mi numero es una lista de decimales en formato int o enteros
+        resi = "" #Voy guardando temporalmente transformacion, primero vacio
+        while i > 0: #NUmero es mayor que 0
+            res = i % base #Lo que va sobrando
+            i = i // base #Diviendo y bajando i
+            if res in hexadecimal_numers2: #Diccionarios god
+                res = hexadecimal_numers2[res] #Diccionarios good
+            resi = str(res) + resi #Transforma residuo a str + "", guarda en la derecha y cuando añade va a la izquierda
+        print("quepasaca",resi)
+        conversiones.append(resi) #Aqui agrego lo guardado temporalmente a una lista que sea usada despues
+    return conversiones
+decimal_to_BI_OCT_HEX(intermedio,entrada)
+
+
+indice = 0
+for i in range(len(textv3)):
+    indice += 1
+    print("Valor",str(indice)+ ":" ,conversiones[i], "(Original:", textv3[i],")")
+
+
+def base_actual_a_ASCII(numero):
+    return
+
+
+
+
+
 
 """""
 def base_x_to_base_decimal(numero):
