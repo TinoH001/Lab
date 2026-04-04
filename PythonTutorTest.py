@@ -168,19 +168,18 @@ print("LISTA DE VALORES EXTRAÍDOS (Base "+ str(entrada)+"):")
 
 
 
-def printeo(lista1,list2,lista3):
-    nombre_del_prefijo = []
+def printeo(lista1,list2,lista3): #Printeo de listas de valores, junto a su original
+    nombre_del_prefijo = [] #Guardo nombres de los originales para usarlos despues
     for i in lista1:
-        prefijo = i[0]
-        if prefijo in lista3:
+        prefijo = i[0] #Saco de mi lista 1 que es mi lista con los 2 filtros
+        if prefijo in lista3: #Diccionarios god
             prefijo = lista3[prefijo]
             nombre_del_prefijo.append(prefijo)
 
-    indice = 0
+    indice = 0 #Usare indice para recorrer e ir desde 0 a hasta el max
     for i in range(len(lista1)):
         indice += 1
-        print("Valor",str(indice)+ ":" ,list2[i],"(Original:",nombre_del_prefijo[i],"".join(textv3[i]),")")
-printeo(textv3,conversiones,bases2)
+        print("Valor",str(indice)+ ":" ,list2[i],"(Original:",nombre_del_prefijo[i],"".join(textv3[i]),")") #Printeo de a poco y el join para sacar los "" de la lista y dejarlo leible
 print("--------------------------------------------------")
 print("")
 
@@ -188,23 +187,23 @@ print("")
 
 
 
-def base_actual_a_ASCII(prefijo,numeros,diccionario):
-    seleccionar_base = prefijo
-    if seleccionar_base in bases:
+def texto_ASCII(prefijo,numeros,diccionario): #Entrada base, conversiones sin prefijo, diccionario completo
+    seleccionar_base = prefijo 
+    if seleccionar_base in bases:#Saco el nombre de la base, usando otro diccionario arriba
         seleccionar_base = bases[seleccionar_base]
-        if seleccionar_base in bases2:
-            seleccionar_base = bases2[seleccionar_base]
+        if seleccionar_base in bases2: #DICCIONARIOS GOD
+            seleccionar_base = bases2[seleccionar_base] 
             #print("waaaaa",seleccionar_base)
 
-    texto = ""
-    for i in numeros:
-        for j,k in diccionario.items():
-            if k[seleccionar_base] == i:
-                texto += j
+    texto = "" #Texto completo
+    for i in numeros:  #recorro lista sin prefijos ya transformado a la base correspondiente
+        for j,k in diccionario.items(): #j, k son caracter y base, digamos seria A y hexadecimal 10
+            if str(k[seleccionar_base]) == i: #Toma valor de la base, al ser hexa o deci y lo compara con el numero actual para saber si esta, en caso de ser asi se agregara ese caracter j
+                texto += str(j) #Añade formato string al texto
                 #print(i)
             
     return texto
-final = base_actual_a_ASCII(entrada,conversiones,ascii_dict)
+final = texto_ASCII(entrada,conversiones,ascii_dict)
 print("MENSAJE DECODIFICADO:")
 print(final)
 
