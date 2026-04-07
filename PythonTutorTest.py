@@ -99,33 +99,35 @@ ascii_dict = {
 
 permitido = {"*": "01*","&": "01234567&","#": "0123456789#","!": "0123456789ABCDEF!"}
 Prefijo_to_base = {"*": 2,"&": 8,"#": 10,"!": 16, 2: "*", 8: "&", 10: "#", 16: "!"}
-hexadecimal_numers = {"A": 10,"B": 11,"C": 12,"D": 13,"E": 14,"F": 15, 10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F"}
-def leer(nombre_archivo):
+hexadecimal_numbers = {"A": 10,"B": 11,"C": 12,"D": 13,"E": 14,"F": 15, 10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F"}
+
+def leer(nombre_archivo): #Leer archivo y sacar nombre del .txt
     archivo=open(nombre_archivo,'r')
     texto = archivo.read()
     archivo_nombre = nombre_archivo.split("/")[-1]
+    archivo.close()
     return texto,archivo_nombre
 
-def ignorar_basura(numero): #PRIMER FILTRO
-    textv2 = []
+def ignorar_basura(numero): #Ignorar los no prefijos y no permitidos
+    version_2 = []
     seguro = None #AL PRINCIPIO NO ES NADA, SIRVE PARA DEJAR DE AÑADIR
-    temporal = []
+    temporal = ""
     for i in numero:
         if i in permitido:
             prefijo_actual = i  
             temporal = []
             actual = i
-            textv2.append(temporal)
+            version_2.append(temporal)
             seguro = True
         if seguro:
             if prefijo_actual in permitido[prefijo_actual] and i in permitido[actual]:
                 temporal.append(i)
             else:
                 seguro = False
-    return textv2
+    return version_2
 
 def BaseX_to_decimal(numero): #Pasa cualquiera prefijo a decimal desde 32 y 126
-    textv3 = []
+    version_3 = []
     intermedio = []
     for i in numero:
         decimal_total = 0 #Total del decimal
@@ -134,14 +136,14 @@ def BaseX_to_decimal(numero): #Pasa cualquiera prefijo a decimal desde 32 y 126
         for j in i[1:]:
             if prefijo in permitido[prefijo]:
                 count +=1
-                if j in hexadecimal_numers:
-                    j = hexadecimal_numers[j]
+                if j in hexadecimal_numbers:
+                    j = hexadecimal_numbers[j]
                 j = int(j)
                 decimal_total += ((Prefijo_to_base[prefijo]**(int(len(i))-count)* j))
         if decimal_total >= 32 and decimal_total <= 126:
-            textv3.append(i)
+            version_3.append(i)
             intermedio.append(int(decimal_total)) #Usara intermedio para pasar de decimal a cualquier base
-    return textv3, intermedio
+    return version_3, intermedio
 
 def decimal_to_BI_OCT_HEX(numero,base): #Paso de mi lista decimal de arriba a cualquier base ingresada 
     conversiones = []
@@ -150,15 +152,15 @@ def decimal_to_BI_OCT_HEX(numero,base): #Paso de mi lista decimal de arriba a cu
         while i > 0: #NUmero es mayor que 0
             res = i % base #Lo que va sobrando
             i = i // base #Diviendo y bajando i
-            if res in hexadecimal_numers: #Diccionarios god
-                res = hexadecimal_numers[res] #Diccionarios good
+            if res in hexadecimal_numbers: #Diccionarios god
+                res = hexadecimal_numbers[res] #Diccionarios good
             resi = str(res) + resi #Transforma residuo a str + "", guarda en la derecha y cuando añade va a la izquierda
         conversiones.append(resi) #Aqui agrego lo guardado temporalmente a una lista que sea usada despues
     return conversiones
 
-def base_actual_a_ASCII(prefijo,numeros,diccionario):
-    texto_completo = ""
-    if prefijo == 2:
+def base_actual_a_ASCII(prefijo,numeros,diccionario):#Entrada Base, conversiones sin prefijo, diccionario completo
+    texto_completo = "" #Texto completo que sera reutilizado para un output
+    if prefijo == 2: 
         seleccionar_base = "binario"
     elif prefijo == 8:
         seleccionar_base = "octal"
@@ -167,16 +169,15 @@ def base_actual_a_ASCII(prefijo,numeros,diccionario):
     elif prefijo == 16:
         seleccionar_base = "hexadecimal"
     else:
-        print("Base incorrecta")
-    texto_completo = ""
-    for i in numeros:
-        for j,k in diccionario.items():
-            if str(k[seleccionar_base]) == i:
+        print("Error, base no encontrada en el dicionarrio")
+    for i in numeros: #Recorro la lista sin prefijos ya transformado a la base correspondiente
+        for j,k in diccionario.items(): #j, k son caracter y base, digamos seria A y hexadecimal 10
+            if str(k[seleccionar_base]) == i:#Toma valor de la base, al ser hexa o deci y lo compara con el numero actual para saber si esta, en caso de ser asi se agregara ese caracter j
                 texto_completo += str(j)
     return texto_completo
 
 def printeo(lista1,list2,texto,entrada,archivo_nombre):
-    nombre_del_prefijo = []
+    nombre_del_prefijo = [] #Los nombres de los prefijos para usarlos despues
     for i in lista1:
         prefijo = i[0]
         if prefijo == "*":
@@ -194,8 +195,8 @@ def printeo(lista1,list2,texto,entrada,archivo_nombre):
     print("[!] Filtrando ruido místico (valores fuera de rango ASCII)...\n "" ")#Hare menu creo o puede que lo deje asi
     print("LISTA DE VALORES EXTRAÍDOS (Base "+ str(entrada)+"): " + "\n--------------------------------------------------")
     print("[Proceso finalizado con éxito]")
-    indice = 0
-    for i in range(len(lista1)):
+    indice = 0 
+    for i in range(len(lista1)): #Rango de version_v3
         indice += 1
         print("Valor",str(indice)+ ":" ,list2[i],"(Original:",nombre_del_prefijo[i],"".join(lista1[i]) + ")")
     print("--------------------------------------------------""\n""\nMENSAJE DECODIFICADO:")
@@ -203,18 +204,19 @@ def printeo(lista1,list2,texto,entrada,archivo_nombre):
     return
 
 def main():
-    print("             --- DECODIFICADOR DE NOTAS --- \n "" \n "" ")
-    entrada = int(input("Ingrese la base en la que desea visualizar los datos (2, 8, 10, 16): "))
-    if entrada == 2 or entrada == 8 or entrada == 10 or entrada == 16:
+    print("             --- DECODIFICADOR DE NOTAS --- \n "" \n "" ") 
+    entrada = int(input("Ingrese la base en la que desea visualizar los datos (2, 8, 10, 16): ")) 
+    if entrada == 2 or entrada == 8 or entrada == 10 or entrada == 16: #Solo va a dejar las bases correspondientes
         pass
     else:
         print("Base incorrecta, vuelve a intentar")
         return
+    
     texto,archivo_nombre = leer("Encriptados/prueba_1.txt")
-    filtro = ignorar_basura(texto)
-    textv3, intermedio = BaseX_to_decimal(filtro) 
+    version_2 = ignorar_basura(texto)
+    version_3, intermedio = BaseX_to_decimal(version_2) 
     conversiones = decimal_to_BI_OCT_HEX(intermedio, entrada)
     texto_completo = base_actual_a_ASCII(entrada, conversiones, ascii_dict)
-    printeo(textv3, conversiones, texto_completo, entrada,archivo_nombre)
+    printeo(version_3, conversiones, texto_completo, entrada, archivo_nombre)
 if __name__ == "__main__":
     main()
