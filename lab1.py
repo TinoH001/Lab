@@ -1,46 +1,108 @@
-#Programa que transforma dependiendo del caso a binario, octal, decimal y hexadecimal
+filter = {"*": "01*","&": "01234567&","#": "0123456789#","!": "0123456789ABCDEF!"}
+prefix_base = {"*": 2,"&": 8,"#": 10,"!": 16, 2: "*", 8: "&", 10: "#", 16: "!"}
+hexadecimal_numbers_inverse = {"A": 10,"B": 11,"C": 12,"D": 13,"E": 14,"F": 15, 10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F"}
 
-file = open("Encriptados/prueba_1.txt", "r")
-texto = file.read()
+def Read_file(file_complete):
+    file = open(file_complete,'r')
+    text = file.read()
+    file_name = file_complete.split("/")[-1]
+    file.close()
+    return text,file_name
 
-textv2 = [] #Texto limpio con los filtros ya aplicados
-prefijo_buscar = "" #Buscando los prefijos
-copia = False #Para que no copie de una, sino bajo una condicion, apagado al comenzar
-""""
-for letra in texto:
+def Filter(text,rules):
+    clean_text = []
+    copy = None
+    group = []
+    for i in text:
+        if i in rules:
+            copy = True
+            actual = i
+            group = []
+            clean_text.append(group)
+        if copy:
+            if i in rules[actual]:
+                group.append(i)
+            else:
+                copy = False
+    return clean_text
 
-    if letra == "#" or letra == "*" or letra == "&":
-        copia = True
-    elif letra not in ("0123456789"):
-        copia = False
-    if copia:
-        textv2.append(letra)
-"""""
+def BaseX_to_decimal(clean):
+    clean_decimal_filter = []
+    decimal_numbers = []
+    text_ascii = ""
+    for i in clean:
+        decimal_total = 0
+        prefix = i[0]
+        base = prefix_base[prefix]
+        numbers = i[1:]
+        exponent = len(numbers) -1
+        for j in numbers:
+            if j in hexadecimal_numbers_inverse:
+                j = hexadecimal_numbers_inverse[j]
+            j = int(j)
+            decimal_total += ((base**exponent)* j)
+            exponent -= 1
 
-temporal = "" #Temporal que va a ser agregado como lista al texto limpio
-for letra in texto: #Ciclo for
-    if letra == "*" or letra == "#" or letra == "&" or letra == "!": #Condicion que se va a buscar
-        if temporal != "": #Si tengo algo en mi temporal incluyendo al prefijo es True
-            textv2.append(temporal) #Agrego a mi textov2
-        copia = True #Empezamos a copiar
-        prefijo_buscar = letra #Cambio prefijo_buscar al prefijo, esto me permitira acceder a las condiconales de abajo
-        temporal = "" #Limpiamos temporal una vez ya agregado arriba sino se va a agregar de mala forma
-    if copia:
-        if prefijo_buscar == "#" and letra not in ("0123456789#"):#Si el prefijo es True y la letra no esta en ese mini diccionario, es True, da True y deja de copiar al ponerlo en False.
-            copia = False#Deja de copiar
-        elif prefijo_buscar == "*" and letra not in ("01*"):#Si el prefijo es True y la letra no esta en ese mini diccionario, es True, da True y deja de copiar al ponerlo en False.
-            copia = False#Deja de copiar
-        elif prefijo_buscar == "&" and letra not in ("01234567&"):#Si el prefijo es True y la letra no esta en ese mini diccionario, es True, da True y deja de copiar al ponerlo en False.
-            copia = False#Deja de copiar
-        elif prefijo_buscar == "!" and letra not in ("0123456789ABCDEF!"):#Si el prefijo es True y la letra no esta en ese mini diccionario, es True, da True y deja de copiar al ponerlo en False.
-            copia = False#Deja de copiar
-    if copia: 
-        temporal += letra #Añade a temporal el numero o letra del momento
-    else: #False
-        if temporal != "":#Sirve para saber si aun tiene String en temporal o esta vacio
-            textv2.append(temporal)#Si tiene lo agrega al textov2
-            temporal = ""#Reinicia a 0
-textv2.append(temporal)#Esto es un seguro para ultimo dato guardado
-print(texto)
-print(textv2)
-file.close()
+        if decimal_total >= 32 and decimal_total <= 126:
+            clean_decimal_filter.append(i)
+            text_ascii += chr(decimal_total)
+            decimal_numbers.append(int(decimal_total))
+    return clean_decimal_filter, decimal_numbers, text_ascii
+
+
+def Decimal_to_BI_OCT_HEX(decimal_list,base):
+    x_base_conversions = []
+    for i in decimal_list: 
+        group = "" 
+        while i > 0: 
+            remainder = i % base 
+            i = i // base 
+            if remainder in hexadecimal_numbers_inverse:
+                remainder = hexadecimal_numbers_inverse[remainder] 
+            group = str(remainder) + group 
+        x_base_conversions.append(group)
+    return x_base_conversions
+
+
+def Show_results(decimal_clean,x_base_transformations,text_ascii,base,file_name):
+    name_prefix = []
+    for i in decimal_clean:
+        prefijo = i[0]
+        if prefijo == "*":
+            name_prefix.append("Binario")
+        elif prefijo == "&":
+            name_prefix.append("Octal")
+        elif prefijo == "#":
+            name_prefix.append("Decimal")
+        elif prefijo == "!":
+            name_prefix.append("Hexadecimal")
+        else:
+            return
+    print("\n", "[+] Procesando archivo: ", file_name, "...")
+    print("[!] Filtrando ruido místico (valores fuera de rango ASCII)...\n "" ")
+    print("LISTA DE VALORES EXTRAÍDOS (Base "+ str(base)+"): " + "\n--------------------------------------------------")
+    print("[Proceso finalizado con éxito]")
+    indice = 0 
+    for i in range(len(decimal_clean)): 
+        indice += 1
+        print("Valor",str(indice)+ ":" ,x_base_transformations[i],"(Original:",name_prefix[i],"".join(decimal_clean[i]) + ")")
+    print("--------------------------------------------------""\n""\nMENSAJE DECODIFICADO:")
+    print(text_ascii,"\n" "\n[Proceso finalizado con éxito]")
+    return
+
+def main():
+    print("             --- DECODIFICADOR DE NOTAS --- \n "" \n "" ") 
+    base_input = int(input("Ingrese la base en la que desea visualizar los datos (2, 8, 10, 16): ")) 
+    if base_input == 2 or base_input == 8 or base_input == 10 or base_input == 16: 
+        pass
+    else:
+        print("Base incorrecta, vuelve a intentar")
+        return
+    
+    text,file_name = Read_file("Encriptados/prueba_4.txt")
+    clean_text = Filter(text,filter)
+    clean_decimal_filter, decimal_numbers, text_ascii = BaseX_to_decimal(clean_text) 
+    x_base_conversions = Decimal_to_BI_OCT_HEX(decimal_numbers, base_input)
+    Show_results(clean_decimal_filter, x_base_conversions, text_ascii, base_input, file_name)
+if __name__ == "__main__":
+    main()
