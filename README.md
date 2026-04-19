@@ -1,9 +1,9 @@
 
+
 # README - Laboratorio 1: 
 
 ## 1. Integrantes
-* **Nombre:** - **RUT:** 
-
+* **Nombre:**  -  **RUT:** 
 
 ---
 
@@ -19,10 +19,10 @@ Se implementaron diccionarios globales para optimizar la lógica de conversión 
 ### Funciones Principales
 * **`Read_file`**: Se encarga de la apertura y lectura del archivo de texto, asegurando que el flujo de datos sea procesado correctamente.
 * **`Filter`**: Recorre el flujo de caracteres para identificar los valores numéricos mediante sus prefijos (*, &, #, !) e ignora el "ruido" o caracteres que no corresponden a la base detectada.
-* **`Decimal_to_BI_OCT_HEX`**: Implementa el algoritmo de divisiones sucesivas para transformar los valores decimales a la base de visualización (2, 8, 10 o 16) elegida por el usuario.
 * **`BaseX_to_decimal_and_ASCII`**: Realiza la conversión manual a base 10 utilizando el método de potencias (dígito * base^exponente). Además, valida que el equivalente decimal esté en el rango 32-126 y utiliza la función `chr()` para convertir cada valor válido en su respectivo carácter ASCII, construyendo así el mensaje final.
+* **`Decimal_to_BI_OCT_HEX`**: Implementa el algoritmo de divisiones sucesivas para transformar los valores decimales a la base de visualización (2, 8, 10 o 16) elegida por el usuario.
 * **`Show_results`**: Genera la interfaz de salida que muestra la tabla de valores extraídos y el mensaje final decodificado segun dicta el laboratorio.
-* **`main`**: Orquestador principal que solicita la base de visualización, valida la entrada del usuario y dirige la ejecución de los módulos anteriores.
+* **`Main`**: Orquestador principal que solicita la base de visualización, valida la entrada del usuario y dirige la ejecución de los módulos anteriores.
 
 ---
 
@@ -31,9 +31,6 @@ Se implementaron diccionarios globales para optimizar la lógica de conversión 
 * **Continuidad de Datos**: Se asume que el archivo de entrada contiene una cadena continua de caracteres sin necesidad de espacios o saltos de línea para su procesamiento.
 * **Rango de Filtrado**: Se asume que cualquier valor cuyo equivalente decimal sea menor a 32 o mayor a 126 es "ruido" y no formará parte del mensaje decodificado.
 * **Prefijos Obligatorios**: Se asume que todo dato válido debe comenzar estrictamente con uno de los prefijos definidos (*, &, #, !) para ser identificado por el sistema.
-* **Persistencia de Errores**: Se asume que el programa debe manejar caracteres inválidos dentro de una secuencia numérica ignorándolos silenciosamente para evitar interrupciones en la ejecución.
-
-* **:** 
-
+* **Ruta de Lectura de Archivo**: Se asume que la estructura de directorios del evaluador coincide con la del entorno de desarrollo, existiendo una carpeta llamada `Encriptados` que contiene varios`Examples.txt`. De lo contrario, el evaluador deberá modificar manualmente la ruta que se le pasa a la función `Read_file` dentro del bloque `main`
 ---
 
