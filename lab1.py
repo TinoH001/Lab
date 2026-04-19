@@ -1,6 +1,7 @@
 filter = {"*": "01*","&": "01234567&","#": "0123456789#","!": "0123456789ABCDEF!"}
 prefix_base = {"*": 2,"&": 8,"#": 10,"!": 16, 2: "*", 8: "&", 10: "#", 16: "!"}
-hexadecimal_numbers_inverse = {"A": 10,"B": 11,"C": 12,"D": 13,"E": 14,"F": 15, 10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F"}
+hexadecimal_numbers = {"A": 10,"B": 11,"C": 12,"D": 13,"E": 14,"F": 15}
+numbers_hexadecimal = {10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F"}
 
 def Read_file(file_complete):
     file = open(file_complete,'r')
@@ -9,10 +10,9 @@ def Read_file(file_complete):
     file.close()
     return text,file_name
 
-def Filter(text,rules):
+def Filter(text,rules): 
     clean_text = []
     copy = None
-    group = []
     for i in text:
         if i in rules:
             copy = True
@@ -22,11 +22,10 @@ def Filter(text,rules):
         if copy:
             if i in rules[actual]:
                 group.append(i)
-            else:
-                copy = False
+
     return clean_text
 
-def BaseX_to_decimal(clean):
+def BaseX_to_decimal_and_ASCII(clean):
     clean_decimal_filter = []
     decimal_numbers = []
     text_ascii = ""
@@ -37,8 +36,8 @@ def BaseX_to_decimal(clean):
         numbers = i[1:]
         exponent = len(numbers) -1
         for j in numbers:
-            if j in hexadecimal_numbers_inverse:
-                j = hexadecimal_numbers_inverse[j]
+            if j in hexadecimal_numbers:
+                j = hexadecimal_numbers[j]
             j = int(j)
             decimal_total += ((base**exponent)* j)
             exponent -= 1
@@ -57,8 +56,8 @@ def Decimal_to_BI_OCT_HEX(decimal_list,base):
         while i > 0: 
             remainder = i % base 
             i = i // base 
-            if remainder in hexadecimal_numbers_inverse:
-                remainder = hexadecimal_numbers_inverse[remainder] 
+            if remainder in numbers_hexadecimal:
+                remainder = numbers_hexadecimal[remainder] 
             group = str(remainder) + group 
         x_base_conversions.append(group)
     return x_base_conversions
@@ -81,7 +80,6 @@ def Show_results(decimal_clean,x_base_transformations,text_ascii,base,file_name)
     print("\n", "[+] Procesando archivo: ", file_name, "...")
     print("[!] Filtrando ruido místico (valores fuera de rango ASCII)...\n "" ")
     print("LISTA DE VALORES EXTRAÍDOS (Base "+ str(base)+"): " + "\n--------------------------------------------------")
-    print("[Proceso finalizado con éxito]")
     indice = 0 
     for i in range(len(decimal_clean)): 
         indice += 1
@@ -92,16 +90,17 @@ def Show_results(decimal_clean,x_base_transformations,text_ascii,base,file_name)
 
 def main():
     print("             --- DECODIFICADOR DE NOTAS --- \n "" \n "" ") 
-    base_input = int(input("Ingrese la base en la que desea visualizar los datos (2, 8, 10, 16): ")) 
-    if base_input == 2 or base_input == 8 or base_input == 10 or base_input == 16: 
-        pass
-    else:
-        print("Base incorrecta, vuelve a intentar")
-        return
-    
-    text,file_name = Read_file("Encriptados/prueba_4.txt")
+    valid_base = False
+    while not valid_base:
+        base_input = (input("Ingrese la base en la que desea visualizar los datos (2, 8, 10, 16): ")) 
+        if base_input in ["2", "8", "10", "16"]: 
+            base_input = int(base_input)
+            valid_base = True
+        else:
+            print("Base incorrecta, intenta de nuevo.")
+    text,file_name = Read_file("Encriptados/prueba_5.txt") #Ruta debe ser modificada para que funcione con distintos .txt
     clean_text = Filter(text,filter)
-    clean_decimal_filter, decimal_numbers, text_ascii = BaseX_to_decimal(clean_text) 
+    clean_decimal_filter, decimal_numbers, text_ascii = BaseX_to_decimal_and_ASCII(clean_text) 
     x_base_conversions = Decimal_to_BI_OCT_HEX(decimal_numbers, base_input)
     Show_results(clean_decimal_filter, x_base_conversions, text_ascii, base_input, file_name)
 if __name__ == "__main__":
